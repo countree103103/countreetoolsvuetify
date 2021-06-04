@@ -54,7 +54,7 @@
       <v-container style="overflow: auto; height: 65vh">
         <v-item-group v-model="selectedIndex">
           <template v-for="i in clientArr">
-            <v-item :key="i.id" v-slot="{ toggle }">
+            <v-item :key="i.id" v-slot="{ toggle }" class="mb-4">
               <v-card @click="toggle" :class="{ streaming: i.streaming }">
                 <v-card-title>{{ i.id }}</v-card-title>
                 <v-card-subtitle>主机名: {{ i.主机名 }}</v-card-subtitle>
@@ -90,6 +90,7 @@
                     </v-btn-toggle>
                   </v-menu>
                 </v-card-actions>
+                <v-divider></v-divider>
               </v-card>
             </v-item>
           </template>
