@@ -20,53 +20,60 @@
         ></v-text-field
       >
     </v-container>
-    <v-container class="d-flex pt-0 pb-0">
+    <v-container class="d-flex pt-0 pb-0 justify-start align-center">
       <v-switch
         v-model="powershell"
         label="powershell"
         class="mr-10"
       ></v-switch>
-      <v-btn-toggle
-        dense
-        class="d-flex justify-start align-center"
-        background-color="transparent"
-      >
-        <v-btn @click="sshOutput = ''"> 清空下方(ctrl+L) </v-btn>
-        <v-menu offset-y>
-          <template v-slot:activator="{ on }">
-            <v-btn v-on="on"
-              >快捷操作<v-icon class="ml-1">fa-angle-down</v-icon></v-btn
-            >
-          </template>
-          <v-list>
-            <v-list-item @click="addQuickCmd">
-              <v-list-item-content>
-                <v-list-item-title>添加操作</v-list-item-title>
-              </v-list-item-content>
-              <v-list-item-icon
-                ><v-icon small>fa-plus</v-icon></v-list-item-icon
+      <v-menu offset-y>
+        <template v-slot:activator="{ on }">
+          <v-btn v-on="on"
+            >更多<v-icon class="ml-1">fa-angle-down</v-icon></v-btn
+          >
+        </template>
+        <v-btn-toggle
+          dense
+          class="d-flex justify-start align-center"
+          background-color="transparent"
+        >
+          <v-btn @click="sshOutput = ''"> 清空下方(ctrl+L) </v-btn>
+          <v-menu offset-y>
+            <template v-slot:activator="{ on }">
+              <v-btn v-on="on"
+                >快捷操作<v-icon class="ml-1">fa-angle-down</v-icon></v-btn
               >
-            </v-list-item>
-            <v-divider></v-divider>
-            <template v-for="(i, index) in quickCmd">
-              <v-list-item
-                :key="index"
-                @click="
-                  sshInput = i.cmd;
-                  submit();
-                "
-              >
+            </template>
+            <v-list>
+              <v-list-item @click="addQuickCmd">
                 <v-list-item-content>
-                  <v-list-item-title>{{ i.name }}</v-list-item-title>
+                  <v-list-item-title>添加操作</v-list-item-title>
                 </v-list-item-content>
-                <v-list-item-icon @click="delQuickCmd(index)"
-                  ><v-icon small>fa-close</v-icon></v-list-item-icon
+                <v-list-item-icon
+                  ><v-icon small>fa-plus</v-icon></v-list-item-icon
                 >
               </v-list-item>
-            </template>
-          </v-list>
-        </v-menu>
-      </v-btn-toggle>
+              <v-divider></v-divider>
+              <template v-for="(i, index) in quickCmd">
+                <v-list-item
+                  :key="index"
+                  @click="
+                    sshInput = i.cmd;
+                    submit();
+                  "
+                >
+                  <v-list-item-content>
+                    <v-list-item-title>{{ i.name }}</v-list-item-title>
+                  </v-list-item-content>
+                  <v-list-item-icon @click="delQuickCmd(index)"
+                    ><v-icon small>fa-close</v-icon></v-list-item-icon
+                  >
+                </v-list-item>
+              </template>
+            </v-list>
+          </v-menu>
+        </v-btn-toggle>
+      </v-menu>
     </v-container>
 
     <v-container>
