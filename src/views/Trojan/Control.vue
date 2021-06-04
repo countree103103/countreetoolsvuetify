@@ -1,51 +1,74 @@
 <template>
   <v-container>
-    <!-- <div><span @click="$router.go(-1)" class="backLink">←返回</span></div> -->
-    <v-btn @click="$router.go(-1)" class="mb-6"
-      ><v-icon class="mr-3">fa-angle-left</v-icon>返回Clients</v-btn
-    >
-    <v-container class="d-flex justify-space-between">
-      <h2>客户端ID: {{ id }}</h2>
+    <v-container class="d-flex justify-space-between pt-0 pb-0">
+      <v-btn small fab @click="$router.go(-1)" class="mb-6 mr-5"
+        ><v-icon>fa-angle-left</v-icon></v-btn
+      >
+      <h4>客户端ID: {{ id }}</h4>
       <p>设置</p>
     </v-container>
-    <v-container class="d-flex justify-center align-center">
+    <v-container class="d-flex justify-center align-center pt-0 pb-0">
       <v-text-field
         @keypress.enter="submit"
         v-model="sshInput"
         name="name"
         label="输入终端命令"
         type="text"
-      ></v-text-field>
-      <v-btn @click="submit" class="ml-3">提交</v-btn>
-      <v-switch v-model="powershell" label="powershell" class="ml-3"></v-switch>
-      <v-btn @click="sshOutput = ''" style="margin-left: 10px">
-        清空下方(ctrl+L)
-      </v-btn>
-      <v-menu offset-y>
-        <template v-slot:activator="{ on }">
-          <v-btn v-on="on" class="ml-3">快捷操作</v-btn>
-        </template>
-        <v-list>
-          <template v-for="(i, index) in quickCmd">
-            <v-list-item
-              :key="index"
-              @click="
-                sshInput = i.cmd;
-                submit();
-              "
-            >
-              <v-list-item-content>
-                <v-list-item-title>{{ i.name }}</v-list-item-title>
-              </v-list-item-content>
-              <v-icon>fa-close</v-icon>
-            </v-list-item>
-          </template>
-        </v-list>
-      </v-menu>
-      <span style="margin-left: 10px; font-size: 0.9rem; color: green">{{
-        sshStatus
-      }}</span>
+        :loading="sshStatus == '等待回调...' ? true : false"
+        ><template v-slot:append
+          ><v-btn @click="submit" outlined>提交</v-btn></template
+        ></v-text-field
+      >
     </v-container>
+    <v-container class="d-flex pt-0 pb-0">
+      <v-switch
+        v-model="powershell"
+        label="powershell"
+        class="mr-10"
+      ></v-switch>
+      <v-btn-toggle
+        dense
+        class="d-flex justify-start align-center"
+        background-color="transparent"
+      >
+        <v-btn @click="sshOutput = ''"> 清空下方(ctrl+L) </v-btn>
+        <v-menu offset-y>
+          <template v-slot:activator="{ on }">
+            <v-btn v-on="on"
+              >快捷操作<v-icon class="ml-1">fa-angle-down</v-icon></v-btn
+            >
+          </template>
+          <v-list>
+            <v-list-item @click="addQuickCmd">
+              <v-list-item-content>
+                <v-list-item-title>添加操作</v-list-item-title>
+              </v-list-item-content>
+              <v-list-item-icon
+                ><v-icon small>fa-plus</v-icon></v-list-item-icon
+              >
+            </v-list-item>
+            <v-divider></v-divider>
+            <template v-for="(i, index) in quickCmd">
+              <v-list-item
+                :key="index"
+                @click="
+                  sshInput = i.cmd;
+                  submit();
+                "
+              >
+                <v-list-item-content>
+                  <v-list-item-title>{{ i.name }}</v-list-item-title>
+                </v-list-item-content>
+                <v-list-item-icon @click="delQuickCmd(index)"
+                  ><v-icon small>fa-close</v-icon></v-list-item-icon
+                >
+              </v-list-item>
+            </template>
+          </v-list>
+        </v-menu>
+      </v-btn-toggle>
+    </v-container>
+
     <v-container>
       <v-textarea
         label="终端回调结果"
@@ -159,6 +182,20 @@ export default {
         this.$store.state.io.emit("apisendcmd", this.id, this.sshInput);
       }
       // this.sshInput = "";
+    },
+    addQuickCmd() {
+      const name = prompt("新快捷操作的名称：");
+      const cmd = prompt("新快捷操作的指令：");
+      if (name && cmd) {
+        this.quickCmd.push({ name: name, cmd: cmd });
+        window.localStorage.setItem("quickCmd", JSON.stringify(this.quickCmd));
+      } else {
+        alert("创建失败！名称或指令不能为空。");
+      }
+    },
+    delQuickCmd(index) {
+      this.quickCmd.splice(index, 1);
+      window.localStorage.setItem("quickCmd", JSON.stringify(this.quickCmd));
     },
   },
 };
