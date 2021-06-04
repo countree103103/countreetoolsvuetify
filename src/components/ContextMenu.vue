@@ -7,8 +7,12 @@
       top: `${contextMenu.mousePos.screenY - 70}px`,
     }"
   >
-    <template v-for="item in template" :key="item.label">
-      <div class="contextmenu-item" @click="itemClicked(item.click)">
+    <template v-for="item in template">
+      <div
+        :key="item.label"
+        class="contextmenu-item"
+        @click="itemClicked(item.click)"
+      >
         <p>{{ item.label }}</p>
       </div>
     </template>
