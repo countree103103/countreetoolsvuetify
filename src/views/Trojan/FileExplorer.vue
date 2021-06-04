@@ -171,7 +171,19 @@
       dense
       @keydown.enter="openDir(currentUrl)"
     ></v-text-field>
-    <v-list style="overflow: auto; height: 63vh; user-select: none">
+    <v-list
+      style="
+        overflow: auto;
+        height: 63vh;
+        user-select: none;
+        position: relative;
+      "
+    >
+      <v-progress-circular
+        v-show="fileListLoading"
+        indeterminate
+        style="position: absolute; right: 40px; top: 20px"
+      ></v-progress-circular>
       <v-list-item v-ripple @click="goBack">
         <v-list-item-avatar>
           <v-icon>fa-long-arrow-left</v-icon>
@@ -215,6 +227,7 @@ export default {
     return {
       id: "",
       currentUrl: "c:\\Users",
+      fileListLoading: false,
       fileList: [],
       sortedFileList: [],
       selectedFile: null,
@@ -315,6 +328,7 @@ export default {
         that.currentUrl = url;
         that.sortFileList();
       }
+      this.fileListLoading = false;
     });
     // window.ss(window.io).on("apidownloadfile", (stream) => {
     //   console.log(stream);
@@ -465,11 +479,13 @@ export default {
     goBack() {
       this.currentUrl = path.resolve(this.currentUrl, "..");
       this.$store.state.io.emit("apilistdir", this.id, this.currentUrl);
+      this.fileListLoading = true;
     },
     openDir(target) {
       let toUrl = path.resolve(this.currentUrl, target);
       // console.log(toUrl);
       this.$store.state.io.emit("apilistdir", this.id, toUrl);
+      this.fileListLoading = true;
     },
     download(target) {
       let that = this;
