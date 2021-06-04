@@ -1,25 +1,24 @@
 <template>
-  <div id="ip">
-    <div class="wrap">
-      <div id="ipinput">
-        <v-text-field
-          v-model="ip"
-          @keypress.enter="postIp"
-          outlined
-          name="name"
-          label="请输入要查询的ip"
-          single-line
-        ></v-text-field>
-        <v-btn @click="postIp">提交</v-btn>
-        vgr
-      </div>
-      <div id="ipresult">
-        <label for="result">查询结果:</label>
-        <br />
-        <textarea name="result" v-model="result"></textarea>
-      </div>
-    </div>
-  </div>
+  <v-container>
+    <v-container class="d-flex flex-row justify-center align-start">
+      <v-text-field
+        v-model="ip"
+        @keypress.enter="postIp"
+        label="请输入要查询的ip"
+        outlined
+        dense
+      ></v-text-field>
+      <v-btn @click="postIp" class="ml-7">提交</v-btn>
+    </v-container>
+    <v-container>
+      <v-textarea
+        v-model="result"
+        rows="13"
+        readonly
+        label="查询IP结果："
+      ></v-textarea>
+    </v-container>
+  </v-container>
 </template>
 
 <script>

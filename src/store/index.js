@@ -1,10 +1,12 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import Vue from "vue";
+import Vuex from "vuex";
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    io: undefined,
+    ss: undefined,
     globalStatus: "测试状态",
     clientArr: window.clientArr,
     selectedClientId: "",
@@ -50,4 +52,4 @@ export default new Vuex.Store({
   },
   actions: {},
   modules: {},
-})
+});

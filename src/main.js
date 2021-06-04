@@ -7,16 +7,16 @@ import contextMenu from "./components/ContextMenu.vue";
 import notification from "./components/NotificationPop.vue";
 
 class myUtils {
-  static IdIndex(id) {
-    for (let i = 0; i < window.clientArr.length; i++) {
-      if (window.clientArr[i].id === id) {
+  static IdIndex(clientArr, id) {
+    for (let i = 0; i < clientArr.length; i++) {
+      if (clientArr[i].id === id) {
         return i;
       }
     }
     return -1;
   }
-  static getClientById(id) {
-    for (const client of window.clientArr) {
+  static getClientById(clientArr, id) {
+    for (const client of clientArr) {
       if (client["id"] == id) {
         return client;
       }

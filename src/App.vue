@@ -1,37 +1,56 @@
 <template>
   <v-app>
-    <div>
-      <h1>Countree's tools</h1>
+    <!-- <h1>Countree's tools</h1>
       <a @click="openDev" style="cursor: pointer">开启开发者工具</a>
       <div id="nav">
         <router-link to="/ssh">远程ssh</router-link> |
         <router-link to="/ip">IP</router-link> |
         <router-link to="/trojan/clients">Clients</router-link>
-      </div>
-      <div id="viewWrapper">
-        <!-- <router-view v-slot="{ Component }">
-          <transition name="ani" mode="out-in">
-            <keep-alive><component :is="Component" /></keep-alive>
-          </transition>
-        </router-view> -->
-        <transition name="ani" mode="out-in">
-          <keep-alive include="clients">
-            <router-view v-slot="{ Component }">
-              <component :is="Component"></component>
-            </router-view>
-          </keep-alive>
-        </transition>
-      </div>
-    </div>
-    <div id="windowControl">
-      <div id="globalStatus">
-        <!-- <p>{{ $store.getters.status }}</p> -->
-      </div>
+      </div> -->
+    <v-app-bar dense fixed class="hidden-lg-only"
+      ><v-app-bar-title class="font-weight-bold"
+        >Countree's Tools</v-app-bar-title
+      ><v-spacer></v-spacer
+      ><v-app-bar-nav-icon @click="show = !show"
+        ><v-icon>fa-align-justify</v-icon></v-app-bar-nav-icon
+      ></v-app-bar
+    >
+    <v-navigation-drawer v-model="show" app>
+      <v-app-bar-title class="ma-5 font-weight-bold"
+        >Countree's Tools</v-app-bar-title
+      >
+      <v-list>
+        <v-list-item-group>
+          <v-list-item link href="/#/ip">
+            <v-list-item-content
+              ><v-list-item-title>IP</v-list-item-title></v-list-item-content
+            >
+          </v-list-item>
+          <v-list-item link href="/#/trojan/clients">
+            <v-list-item-content
+              ><v-list-item-title
+                >Clients</v-list-item-title
+              ></v-list-item-content
+            >
+          </v-list-item>
+        </v-list-item-group>
+      </v-list>
+    </v-navigation-drawer>
+    <v-main class="pt-12">
+      <transition name="ani" mode="out-in">
+        <keep-alive include="clients">
+          <router-view v-slot="{ Component }">
+            <component :is="Component"></component>
+          </router-view>
+        </keep-alive>
+      </transition>
+    </v-main>
+    <!-- <div id="windowControl">
       <i id="closeButton" @click="minimize">-</i>
       <i id="closeButton" @click="maximize">口</i>
       <i id="closeButton" @click="closeWindow">X</i>
     </div>
-    <div id="dragArea"></div>
+    <div id="dragArea"></div> -->
   </v-app>
 </template>
 
@@ -55,70 +74,6 @@
 .ani-leave-active {
   animation: ani 0.1s reverse;
 }
-
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  height: 100%;
-  width: 100%;
-  // max-width: 800px;
-  // max-height: 600px;
-  padding-top: 5vh;
-  box-sizing: border-box;
-  background-color: gainsboro;
-  #viewWrapper {
-    height: 85vh;
-  }
-}
-
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
-}
-
-#windowControl {
-  // z-index: 999;
-  position: fixed;
-  right: 10px;
-  top: 0px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  i {
-    margin-right: 5px;
-    font-style: normal;
-    -webkit-app-region: no-drag;
-  }
-}
-
-#dragArea {
-  z-index: -1;
-  position: fixed;
-  height: 30px;
-  width: 90vw;
-  top: 0;
-  -webkit-app-region: drag;
-}
-
-#globalStatus {
-  position: fixed;
-  left: 20px;
-  top: 20px;
-  p {
-    color: green;
-  }
-}
 </style>
 
 <script>
@@ -128,6 +83,7 @@ export default {
     return {
       isMaximized: false,
       interval: null,
+      show: true,
     };
   },
   beforeMount() {

