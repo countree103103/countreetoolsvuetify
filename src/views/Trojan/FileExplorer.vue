@@ -193,7 +193,7 @@
         </v-list-item-content>
       </v-list-item>
       <template v-for="(file, index) in fileList">
-        <v-list-item :key="index" @click="openDir(file.name)" v-ripple>
+        <v-list-item :key="index" @click="openDir(file.name)" v-ripple="false">
           <v-list-item-avatar>
             <v-icon>{{ getExtCssObj(file.name).class }}</v-icon>
           </v-list-item-avatar>
