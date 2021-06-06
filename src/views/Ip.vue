@@ -7,8 +7,12 @@
         label="请输入要查询的ip"
         outlined
         dense
+        :loading="loading"
+        :error="error"
+        :error-messages="errorMessages"
+        :rules="[rules.validIp]"
       ></v-text-field>
-      <v-btn @click="postIp" class="ml-7">提交</v-btn>
+      <v-btn @click="postIp" class="ml-7">查询</v-btn>
     </v-container>
     <v-container>
       <v-textarea
@@ -22,76 +26,47 @@
 </template>
 
 <script>
-const { get } = require("axios");
-// const request = require('request')
 export default {
   data: function () {
     return {
       ip: "",
       result: null,
+      loading: false,
+      error: false,
+      errorMessages: "",
+      rules: {
+        validIp: (value) =>
+          /^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/.test(value) ||
+          "请输入正确的IP地址",
+      },
     };
   },
   methods: {
-    postIp() {
-      let that = this;
-      console.log(that.ip);
-      // this.$nextTick(() => {
-      // })
-      let pattern = /^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$/;
+    async postIp() {
+      console.log(this.ip);
 
-      if (pattern.test(that.ip)) {
-        that.result = "加载中...";
-        get(`http://ip-api.com/json/${that.ip}?lang=zh-CN `)
-          .then((result) => {
-            that.result = JSON.stringify(result.data, null, 2);
-          })
-          .catch((error) => {
-            console.log(error);
-            that.result = "网络异常!请检查网络。";
-          });
-      } else {
-        that.result = "IP输入错误!";
+      this.loading = true;
+      try {
+        let response = await fetch(
+          `http://ip-api.com/json/${this.ip}?lang=zh-CN `
+        );
+        if (response.status != 200) {
+          this.error = true;
+          this.errorMessages = `IP API异常,HTTP状态码为: ${response.status}`;
+        } else {
+          this.loading = false;
+          this.error = false;
+          this.errorMessages = null;
+          this.result = JSON.stringify(await response.json(), null, 2);
+        }
+      } catch (error) {
+        this.error = true;
+        console.log(error);
+        this.errorMessages = "网络异常!请检查网络。";
       }
-      // axios.get(`${that.ip}/json`).then(function(result){console.log(result)}).catch(function(error){console.log(error)})
-
-      // request(`https://ipinfo.io/${that.ip}/json`,function(error, response, body){
-      // console.log(body)
-      // })
     },
   },
 };
 </script>
 
-<style lang="scss" scoped>
-#ip {
-  width: 100%;
-  height: 100%;
-  // margin-top: 5%;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  flex-direction: column;
-  .wrap {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    #ipinput {
-      // margin-bottom: 10%;
-    }
-    #ipresult {
-      margin-top: 3vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      flex-direction: column;
-      textarea {
-        width: 70vw;
-        // margin-top: 5%;
-        height: 50vh;
-        // border: none;
-      }
-    }
-  }
-}
-</style>
+<style lang="scss"></style>

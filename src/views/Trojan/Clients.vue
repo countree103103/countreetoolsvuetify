@@ -161,13 +161,12 @@ export default {
           {
             label: "打开文件浏览器",
             click: () => {
-              let that = this;
               console.log(this.msg.id);
-              this.$store.state.io.emit("apilistdir", that.msg.id, ".");
-              that.$router.push({
+              this.$store.state.io.emit("apilistdir", this.msg.id, ".");
+              this.$router.push({
                 path: `/trojan/fileexplorer`,
                 query: {
-                  id: that.msg.id,
+                  id: this.msg.id,
                 },
               });
             },
@@ -246,9 +245,8 @@ export default {
       return tmp;
     },
     checkSelected() {
-      const that = this;
-      return function (id) {
-        if (id == that.selectedId) return true;
+      return (id) => {
+        if (id == this.selectedId) return true;
         else return false;
       };
     },
@@ -279,11 +277,10 @@ export default {
     },
   },
   beforeMount() {
-    let that = this;
     document.documentElement.addEventListener("keydown", (e) => {
       if (e.key == "ArrowDown" && e.ctrlKey) {
-        that.$store.state.clients.verify.show =
-          !that.$store.state.clients.verify.show;
+        this.$store.state.clients.verify.show =
+          !this.$store.state.clients.verify.show;
       }
       // if (e.key == "ArrowUp") {
       // }
@@ -361,7 +358,7 @@ export default {
       // that.clientArr = window.clientArr;
       // that.server_status = window.server_status;
       window.clientArr = this.clientArr;
-      that.$forceUpdate();
+      this.$forceUpdate();
     }, 1000);
 
     let tmp = this.interval;
@@ -376,7 +373,7 @@ export default {
         // that.server_status = window.server_status;
         // that.screenshot.src = window.screenshot;
         window.clientArr = this.clientArr;
-        that.$forceUpdate();
+        this.$forceUpdate();
       }, 5000);
     }, 2000);
 
@@ -457,10 +454,9 @@ export default {
       }
     },
     longPressShowContextMenu(id) {
-      const that = this;
-      that.touchTimeout = setTimeout(() => {
-        that.touchTimeout = 0;
-        that.showContextMenu(id);
+      this.touchTimeout = setTimeout(() => {
+        this.touchTimeout = 0;
+        this.showContextMenu(id);
       }, 1500);
     },
     updateAllClients() {
@@ -481,14 +477,12 @@ export default {
     //   // event.preventDefault();
     // },
     longPressClearImg() {
-      const that = this;
-      that.touchTimeout = setTimeout(() => {
-        that.clearImg();
+      this.touchTimeout = setTimeout(() => {
+        this.clearImg();
       }, 700);
     },
     toggleVideoCapture(id) {
-      let that = this;
-      const streaming = that.$myUtils.getClientById(this.clientArr, id)[
+      const streaming = this.$myUtils.getClientById(this.clientArr, id)[
         "streaming"
       ];
 
@@ -499,9 +493,8 @@ export default {
       }
     },
     stopVideoCapture() {
-      const that = this;
       for (const item of this.clientArr) {
-        if (item["streaming"] || item["id"] == that.selectedId) {
+        if (item["streaming"] || item["id"] == this.selectedId) {
           this.$store.state.io.emit("apistopvideocapture", item["id"]);
         }
       }
@@ -510,9 +503,8 @@ export default {
       this.$store.state.io.emit("apistartvideocapture", id);
     },
     showFileExplorer(id) {
-      const that = this;
       this.$store.state.io.emit("apilistdir", id, ".");
-      that.$router.push({
+      this.$router.push({
         path: `/trojan/fileexplorer`,
         query: {
           id: id,

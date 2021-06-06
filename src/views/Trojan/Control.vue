@@ -183,7 +183,7 @@ export default {
         this.$store.state.io.emit(
           "apisendcmd",
           this.id,
-          `powershell -command ${this.sshInput}`
+          `powershell -command "${this.sshInput}"`
         );
       } else {
         this.$store.state.io.emit("apisendcmd", this.id, this.sshInput);

@@ -278,31 +278,26 @@ export default {
     //   return this.fileList;
     // },
     isDir() {
-      return function (is_dir) {
+      return (is_dir) => {
         return is_dir ? { color: "red" } : {};
       };
     },
     isSelected() {
-      const that = this;
-      return function (file) {
+      return (file) => {
         let classList = [];
-        if (file == that.selectedFile) {
+        if (file == this.selectedFile) {
           classList.push("file-selected");
         }
-        // if (file.isDir) {
-        //   classList.push("file-is-dir");
-        // }
         return classList;
       };
     },
     getExtCssObj() {
-      return function (file) {
+      return (file) => {
         const extName = path.extname(file);
         return EXT.calcClass(extName);
       };
     },
     calSortShow() {
-      let that = this;
       return (name, type) => {
         return name == this.sortedBy.name && type == this.sortedBy.type
           ? true
@@ -311,7 +306,6 @@ export default {
     },
   },
   beforeMount() {
-    let that = this;
     this.$nextTick(() => {
       this.openDir(".");
     });
@@ -323,10 +317,10 @@ export default {
       // console.log(result);
       if (result.length) {
         // console.log(result);
-        that.fileList = result;
-        that.sortedFileList = that.fileList;
-        that.currentUrl = url;
-        that.sortFileList();
+        this.fileList = result;
+        this.sortedFileList = this.fileList;
+        this.currentUrl = url;
+        this.sortFileList();
       }
       this.fileListLoading = false;
     });
@@ -488,9 +482,8 @@ export default {
       this.fileListLoading = true;
     },
     download(target) {
-      let that = this;
       const fileUrl = path.resolve(this.currentUrl, target);
-      this.$store.state.io.emit("apidownloadfile", that.id, fileUrl);
+      this.$store.state.io.emit("apidownloadfile", this.id, fileUrl);
     },
     showFileContent(target) {
       this.$store.state.io.emit("apishowfilecontent", this.id, target);

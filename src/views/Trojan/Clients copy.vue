@@ -167,7 +167,7 @@ export default {
   },
   watch: {},
   beforeMount() {
-    document.documentElement.addEventListener("contextmenu", function (e) {
+    document.documentElement.addEventListener("contextmenu", (e) => {
       e.preventDefault();
     });
     let that = this;

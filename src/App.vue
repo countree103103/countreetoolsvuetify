@@ -83,13 +83,12 @@ export default {
     return {
       isMaximized: false,
       interval: null,
-      show: true,
+      show: null,
     };
   },
   beforeMount() {
-    const that = this;
     window.addEventListener("click", () => {
-      that.$store.state.contextMenu.show = false;
+      this.$store.state.contextMenu.show = false;
     });
     if (window.imgbase64) {
       this.$route.push("/trojan/img");
