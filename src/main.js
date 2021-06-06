@@ -3,8 +3,6 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 import vuetify from "./plugins/vuetify";
-import contextMenu from "./components/ContextMenu.vue";
-import notification from "./components/NotificationPop.vue";
 
 class myUtils {
   static IdIndex(clientArr, id) {
@@ -28,9 +26,6 @@ class myUtils {
 Vue.config.productionTip = false;
 
 Vue.prototype.$myUtils = myUtils;
-
-Vue.component("context-menu", contextMenu);
-Vue.component("notification-pop", notification);
 
 new Vue({
   router,

@@ -7,7 +7,7 @@
         <router-link to="/ip">IP</router-link> |
         <router-link to="/trojan/clients">Clients</router-link>
       </div> -->
-    <v-app-bar dense fixed class="hidden-lg-only"
+    <v-app-bar dense fixed class="d-lg-none"
       ><v-app-bar-title class="font-weight-bold"
         >Countree's Tools</v-app-bar-title
       ><v-spacer></v-spacer
@@ -57,12 +57,10 @@
 <style lang="scss">
 @keyframes ani {
   0% {
-    // opacity: 0;
     transform: translateX(100vw);
   }
 
   100% {
-    // opacity: 1;
     transform: translateX(0);
   }
 }
@@ -90,9 +88,6 @@ export default {
     window.addEventListener("click", () => {
       this.$store.state.contextMenu.show = false;
     });
-    if (window.imgbase64) {
-      this.$route.push("/trojan/img");
-    }
   },
   methods: {
     closeWindow() {

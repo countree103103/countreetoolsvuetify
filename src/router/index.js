@@ -31,12 +31,6 @@ const routes = [
     props: true,
   },
   {
-    path: "/trojan/img",
-    name: "ImgWindow",
-    component: () => import("../views/Trojan/Img.vue"),
-    // props: true,
-  },
-  {
     path: "/trojan/fileexplorer",
     name: "FileExplorer",
     component: () => import("../views/Trojan/FileExplorer.vue"),

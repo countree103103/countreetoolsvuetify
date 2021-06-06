@@ -102,11 +102,6 @@
 
         <p v-show="!clientArr.length">列表为空</p>
       </v-container>
-      <context-menu
-        :contextMenu="$store.state.contextMenu"
-        :msg="msg"
-        :template="contextMenu.template"
-      ></context-menu>
     </v-container>
   </v-container>
 </template>
@@ -128,13 +123,10 @@ export default {
       selectedId: "",
       selectedIndex: null,
       interval: null,
-      touchTimeout: 0,
-      // server_status: window.server_status,
       server_status: "未连接",
       newBackendName: "backend",
       screenshot: {
         show: false,
-        enlarge: false,
         src: "",
         ratio: 16 / 9,
         width: "30vw",
@@ -149,13 +141,11 @@ export default {
                   let str = "";
                   for (let item in window.clientArr[i]) {
                     str += `${item}: ${window.clientArr[i][item]}\n`;
-                    // console.log(`${item}: ${window.clientArr[i][item]}`);
                   }
                   alert(str);
                   break;
                 }
               }
-              // alert(1);
             },
           },
           {
@@ -204,32 +194,9 @@ export default {
           clientY: 0,
         },
       },
-      msg: {},
     };
   },
   computed: {
-    ca() {
-      return this.$store.getters.getClientArr;
-    },
-    screenshotStyle() {
-      return this.screenshot.enlarge
-        ? {
-            position: "fixed",
-            left: "0",
-            top: "0",
-            right: "0",
-            bottom: "0",
-            margin: "auto",
-            // height: "90vh",
-            width: "80vw",
-            border: "1px black solid",
-          }
-        : // {
-          //   width: "80vw",
-          //   height: "auto",
-          // }
-          { width: "30vw", height: "auto" };
-    },
     status_style() {
       let tmp = {};
       switch (this.server_status) {
@@ -244,21 +211,6 @@ export default {
       }
       return tmp;
     },
-    checkSelected() {
-      return (id) => {
-        if (id == this.selectedId) return true;
-        else return false;
-      };
-    },
-    // getSelected() {
-    //   return function (id) {
-    //     for (const client of window.clientArr) {
-    //     }
-    //   };
-    // },
-    // checkStreaming() {
-    //   return function (id) {};
-    // },
   },
   watch: {
     selectedIndex: {
@@ -268,11 +220,6 @@ export default {
           return;
         }
         this.selectedId = this.clientArr[nv].id;
-      },
-    },
-    "window.screenshot": {
-      handler(nv, ov) {
-        this.screenshot.src = window.screenshot;
       },
     },
   },
@@ -314,7 +261,6 @@ export default {
         // withCredentials: true,
       });
       this.$store.state.ss = ss;
-      // window.server_status = "未连接";
 
       this.$store.state.io.on("connect", () => {
         this.$store.state.io.send({ admin: true });
@@ -354,9 +300,6 @@ export default {
     this.interval = setInterval(() => {
       //!!
       this.$store.state.io.emit("apigetallclients");
-
-      // that.clientArr = window.clientArr;
-      // that.server_status = window.server_status;
       window.clientArr = this.clientArr;
       this.$forceUpdate();
     }, 1000);
@@ -369,9 +312,6 @@ export default {
         //!!
         this.$store.state.io.emit("apigetallclients");
 
-        // that.clientArr = window.clientArr;
-        // that.server_status = window.server_status;
-        // that.screenshot.src = window.screenshot;
         window.clientArr = this.clientArr;
         this.$forceUpdate();
       }, 5000);
@@ -399,7 +339,6 @@ export default {
       }
     },
     toControlPage(id) {
-      // console.log("click", id);
       this.$router.push("/trojan/control/" + id);
     },
     showClientDetails(id) {
@@ -408,7 +347,6 @@ export default {
           let str = "";
           for (let item in this.clientArr[i]) {
             str += `${item}: ${this.clientArr[i][item]}\n`;
-            // console.log(`${item}: ${window.clientArr[i][item]}`);
           }
           alert(str);
           break;
@@ -453,33 +391,8 @@ export default {
         this.selectedId = id;
       }
     },
-    longPressShowContextMenu(id) {
-      this.touchTimeout = setTimeout(() => {
-        this.touchTimeout = 0;
-        this.showContextMenu(id);
-      }, 1500);
-    },
     updateAllClients() {
       this.$store.state.io.emit("apiupdateallclients", this.newBackendName);
-    },
-    scaleTrigger() {
-      this.screenshot.enlarge = !this.screenshot.enlarge;
-    },
-    clearImg() {
-      // this.screenshot.src = "";
-      window.screenshot = "";
-      this.screenshot.enlarge = false;
-    },
-    // clearSelectedId(event) {
-    //   // event = event || window.event;
-    //   // this.selectedId = "";
-    //   // event.stopPropatation();
-    //   // event.preventDefault();
-    // },
-    longPressClearImg() {
-      this.touchTimeout = setTimeout(() => {
-        this.clearImg();
-      }, 700);
     },
     toggleVideoCapture(id) {
       const streaming = this.$myUtils.getClientById(this.clientArr, id)[
@@ -516,76 +429,11 @@ export default {
       this.$store.commit("setGlobalStatus", `正在dx分析中...`);
     },
   },
-  // components: {
-  //   "context-menu": ContextMenuVue,
-  //   notification: NotificationVue,
-  // },
+  components: {},
 };
 </script>
 
 <style lang="scss">
-.scrennshotWrapper {
-  position: relative;
-  p {
-    // border-radius: 100%;
-    cursor: pointer;
-    padding: 1px;
-    color: white;
-    background-color: rgba(155, 155, 155, 0.5);
-    position: absolute;
-    right: 5px;
-    top: 5px;
-    &:hover {
-      background-color: rgb(104, 104, 104);
-    }
-  }
-}
-#screenshot {
-  width: 50vw;
-  // height: 30vh;
-  transition: 0.3s;
-  border: 1px solid black;
-}
-// #ClientGroup {
-//   display: flex;
-//   flex-direction: row;
-//   overflow: auto;
-//   height: 60vh;
-//   // height: 400px;
-//   // height: 80%;
-//   padding-top: 10px;
-//   width: 100vw;
-//   box-sizing: border-box;
-//   padding: 5px 2% 0 2%;
-//   flex-wrap: wrap;
-//   align-items: flex-start;
-//   justify-content: space-between;
-
-//   .client {
-//     box-sizing: border-box;
-//     padding: 2%;
-//     border: 1px solid black;
-//     display: flex;
-//     flex-direction: column;
-//     justify-content: left;
-//     // margin: 0 1% 10px 1%;
-//     margin-bottom: 2%;
-//     text-align: left;
-//     // width: 46vw;
-//     width: 49%;
-
-//     p {
-//       user-select: none;
-//     }
-
-//     &:hover {
-//       box-shadow: 0px 5px 10px gray;
-//       cursor: pointer;
-//       transition: 0.2s;
-//     }
-//   }
-// }
-
 .streaming {
   animation: streaming infinite alternate 1.5s;
 }
@@ -593,18 +441,6 @@ export default {
 .clientselected {
   background-color: rgb(209, 209, 209);
   border: 3px rgb(6, 90, 158) solid !important;
-}
-
-#client-selected-button-group {
-  display: flex;
-  flex-wrap: nowrap;
-  button {
-    cursor: pointer;
-  }
-}
-
-.clientButton {
-  margin: 0 3px;
 }
 
 @keyframes streaming {

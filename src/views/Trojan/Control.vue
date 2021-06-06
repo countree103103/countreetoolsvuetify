@@ -90,8 +90,6 @@
 </template>
 
 <script>
-// import io from "socket.io-client";
-
 export default {
   name: "control",
   props: ["id"],
@@ -133,14 +131,9 @@ export default {
           this.sshOutput = this.sshOutput.concat(window.cmdResult.data);
         }
         setTimeout(() => {
-          // this.$refs.sshOutput.children[1].scrollTop =
-          //   this.$refs.sshOutput.children[1].scrollHeight;
-          // console.log(this.$refs.sshOutput);
-
           let dom = document.querySelector("#outputTextarea");
           dom.scrollTop = dom.scrollHeight;
         }, 100);
-        // window.cmdResult.data = "";
         window.cmdResult.changed = false;
       }
 
@@ -157,7 +150,6 @@ export default {
     }, 200);
   },
   beforeRouteLeave(to, from, next) {
-    // window.cmdResult.data = "";
     window.cmdResult.changed = false;
     clearInterval(this.interval);
 
@@ -188,7 +180,6 @@ export default {
       } else {
         this.$store.state.io.emit("apisendcmd", this.id, this.sshInput);
       }
-      // this.sshInput = "";
     },
     addQuickCmd() {
       const name = prompt("新快捷操作的名称：");
