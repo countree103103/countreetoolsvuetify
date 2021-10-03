@@ -1,5 +1,6 @@
 const css_shadow = "1px 0px 1px black";
 const obj = {
+  //数组第一个变量用于控制css，剩余的变量为对应文件类型的后缀名
   EXT_UNKNOW: [{ class: "fa fa-file-o", style: null }, ""],
   EXT_EXCEL: [{ class: "fa fa-file-excel-o", style: null }, "xls"],
   EXT_WORD: [

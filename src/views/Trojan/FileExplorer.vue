@@ -1,13 +1,15 @@
 <template>
   <v-container>
     <div class="d-flex justify-space-between mb-3">
-      <v-btn small fab @click="$router.go(-1)" class="mb-6 mr-5"
-        ><v-icon>fa-angle-left</v-icon></v-btn
-      >
+      <div class="d-flex">
+        <v-btn small fab @click="$router.go(-1)" class="mb-6 mr-5"
+          ><v-icon>fa-angle-left</v-icon></v-btn
+        >
+      </div>
       <div class="d-flex ma-0 pa-0">
-        <p>排序方式</p>
-        <v-container class="d-flex"
-          ><v-menu offset-y>
+        <v-container class="d-flex">
+          <p class="text-no-wrap">排序方式:</p>
+          <v-menu offset-y>
             <template v-slot:activator="{ on }">
               <v-btn v-on="on" class="ml-3" small>{{ sortedBy.name }}</v-btn>
             </template>
@@ -65,6 +67,7 @@
     </div>
     <v-text-field
       label="当前URL"
+      :loading="fileListLoading"
       v-model="currentUrl"
       dense
       @keydown.enter="openDir(currentUrl)"
@@ -77,11 +80,6 @@
         position: relative;
       "
     >
-      <v-progress-circular
-        v-show="fileListLoading"
-        indeterminate
-        style="position: absolute; right: 40px; top: 20px"
-      ></v-progress-circular>
       <v-list-item v-ripple @click="goBack">
         <v-list-item-avatar>
           <v-icon>fa-long-arrow-left</v-icon>
@@ -178,23 +176,25 @@ export default {
   },
   beforeMount() {
     this.$nextTick(() => {
-      this.openDir(".");
+      this.openDir(this.currentUrl);
     });
+
     // ipcRenderer.on("downloadfile", (e, id, fileUrl) => {
     //   that.download(fileUrl);
     // });
     // ipcRenderer.on("showfilecontent", (e, fileUrl) => {});
     this.$store.state.io.on("apilistdir", (result, url) => {
-      if (result.length) {
-        this.fileList = result;
-        this.sortedFileList = this.fileList;
-        this.currentUrl = url;
-        this.sortFileList();
-      }
+      // if (result.length) {
+      this.fileList = result;
+      this.sortedFileList = this.fileList;
+      this.currentUrl = url;
+      this.sortFileList();
+      // }
       this.fileListLoading = false;
     });
     this.$store.state.io.on("apidownloadfile", (fileName) => {
       window.open(`${SERVER_ADDRESS}:7071/tmpDir/${fileName}`);
+      this.fileListLoading = false;
     });
     this.$store.state.io.on("apishowfilecontent", (raw) => {});
     this.id = this.$route.query.id;
@@ -214,7 +214,7 @@ export default {
           switch (this.sortedBy.type) {
             case "升序": {
               this.sortedFileList = this.fileList.sort((a, b) => {
-                if (a > b) {
+                if (a < b) {
                   return 1;
                 } else {
                   return -1;
@@ -224,7 +224,7 @@ export default {
             }
             case "降序": {
               this.sortedFileList = this.fileList.sort((a, b) => {
-                if (a < b) {
+                if (a > b) {
                   return 1;
                 } else {
                   return -1;
@@ -240,9 +240,9 @@ export default {
             case "升序": {
               this.sortedFileList = this.fileList.sort((a, b) => {
                 if (a.lstat.mtime > b.lstat.mtime) {
-                  return -1;
-                } else {
                   return 1;
+                } else {
+                  return -1;
                 }
               });
               break;
@@ -250,9 +250,9 @@ export default {
             case "降序": {
               this.sortedFileList = this.fileList.sort((a, b) => {
                 if (a.lstat.mtime < b.lstat.mtime) {
-                  return -1;
-                } else {
                   return 1;
+                } else {
+                  return -1;
                 }
               });
               break;
@@ -266,9 +266,9 @@ export default {
             case "升序": {
               this.sortedFileList = this.fileList.sort((a, b) => {
                 if (a.lstat.size > b.lstat.size) {
-                  return -1;
-                } else {
                   return 1;
+                } else {
+                  return -1;
                 }
               });
               break;
@@ -276,9 +276,9 @@ export default {
             case "降序": {
               this.sortedFileList = this.fileList.sort((a, b) => {
                 if (a.lstat.size < b.lstat.size) {
-                  return -1;
-                } else {
                   return 1;
+                } else {
+                  return -1;
                 }
               });
               break;

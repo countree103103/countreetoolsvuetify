@@ -9,7 +9,6 @@ export default new Vuex.Store({
     ss: undefined,
     globalStatus: "测试状态",
     clientArr: window.clientArr,
-    selectedClientId: "",
     cmdResult: window.cmdResult,
     clients: {
       verify: {
