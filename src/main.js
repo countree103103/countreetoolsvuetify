@@ -3,6 +3,8 @@ import App from "./App.vue";
 import router from "./router";
 import store from "./store";
 import vuetify from "./plugins/vuetify";
+import Video from 'video.js'
+import 'video.js/dist/video-js.css'
 
 class myUtils {
   static IdIndex(clientArr, id) {
@@ -26,6 +28,7 @@ class myUtils {
 Vue.config.productionTip = false;
 
 Vue.prototype.$myUtils = myUtils;
+Vue.prototype.$video = Video //引入Video播放器
 
 new Vue({
   router,

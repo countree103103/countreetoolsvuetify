@@ -76,6 +76,13 @@
                 <v-card-title>{{ i.id }}</v-card-title>
                 <v-card-subtitle>主机名: {{ i.主机名 }}</v-card-subtitle>
                 <v-card-subtitle>平台: {{ i.系统版本名 }}</v-card-subtitle>
+                <v-container v-if="i.streaming">
+                  <!-- <video ref="player">
+                    <source :src="'http://home.countree.cn:8765/hls/'+i.id+'.m3u8'">
+                  </video> -->
+                  <video-player :options="videoOptions" :id="i.id"></video-player>
+                  <!-- <hls-player :id="i.id"></hls-player> -->
+                </v-container>
                 <v-card-actions>
                   <v-menu offset-y
                     ><template v-slot:activator="{ on }">
@@ -114,6 +121,7 @@
         </v-item-group>
 
         <p v-show="!clientArr.length">列表为空</p>
+        <!-- <video-player></video-player> -->
       </v-container>
     </v-container>
   </v-container>
@@ -124,10 +132,35 @@
 import sio from "socket.io-client";
 import ss from "socket.io-stream";
 import { SERVER_ADDRESS, SERVER_PORT } from "../../../my_config";
+import videoPlayer from "../../components/videoPlayer.vue";
+import hlsPlayer from "../../components/hlsPlayer.vue"
+
 export default {
   name: "clients",
+  components:{
+    videoPlayer,
+    // hlsPlayer
+  },
   data() {
     return {
+      videoOptions: {
+          // autoplay: 'muted',//自动播放
+          controls: true,//用户可以与之交互的控件
+          // loop:true,//视频一结束就重新开始
+          // muted:false,//默认情况下将使所有音频静音
+          // aspectRatio:"16:9",//显示比率
+          // fullscreen:{
+              // options: {navigationUI: 'hide'}
+          // },
+          sources: [
+              {
+                  // src: require("@/assets/video/index/oceans.mp4"),
+                  // type: "video/mp4"
+                  src: "",
+                  type: "application/x-mpegURL"
+              }
+          ]
+      },
       verify: {
         password: "",
         show: false,
@@ -144,6 +177,8 @@ export default {
         ratio: 16 / 9,
         width: "30vw",
       },
+      streamingId: "",
+      player: null,
       contextMenu: {
         template: [
           {
@@ -235,6 +270,17 @@ export default {
         this.selectedId = this.clientArr[nv].id;
       },
     },
+    streamingId: {
+      handler(nv, ov) {
+        if(nv !== ""){
+          this.$nextTick(()=>{
+            // this.player = videojs(this.$refs.player)
+          })
+        }else{
+          this.player = null;
+        }
+      }
+    }
   },
   beforeMount() {
     document.documentElement.addEventListener("keydown", (e) => {
@@ -415,8 +461,12 @@ export default {
 
       if (streaming) {
         this.$store.state.io.emit("apistopvideocapture", id);
+        // this.streamingId = id;
+        this.videoOptions.sources[0].src = "";
       } else {
         this.$store.state.io.emit("apistartvideocapture", id);
+        // this.streamingId = "";
+        this.videoOptions.sources[0].src = `http://home.countree.cn:8765/hls/${id}.m3u8`;
       }
     },
     stopVideoCapture() {
@@ -443,7 +493,6 @@ export default {
       this.$store.commit("setGlobalStatus", `正在dx分析中...`);
     },
   },
-  components: {},
 };
 </script>
 

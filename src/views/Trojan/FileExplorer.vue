@@ -126,8 +126,8 @@ export default {
       fileList: [],
       sortedFileList: [],
       sortedBy: {
-        name: "文件名",
-        type: "升序",
+        name: "时间",
+        type: "降序",
       },
       contextMenu: {
         template: [

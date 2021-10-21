@@ -31,6 +31,12 @@ const routes = [
     props: true,
   },
   {
+    path: "/trojan/stream/:id",
+    name: "Stream",
+    component: () => import("../views/Trojan/Stream.vue"),
+    props: true,
+  },
+  {
     path: "/trojan/fileexplorer",
     name: "FileExplorer",
     component: () => import("../views/Trojan/FileExplorer.vue"),
